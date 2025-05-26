@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { toast } from 'react-hot-toast';
+import { useAuthContext } from '../context/AuthContext';
+
 
 const handleInputError = (fullName, username, password, confirmPassword, gender) => {
     // Check if all fields are filled
@@ -32,6 +34,7 @@ const handleInputError = (fullName, username, password, confirmPassword, gender)
 
 export const useSignup = () => {
     const [loading, setLoading] = useState(false);
+    const { setAuthUser } = useAuthContext();
 
     const signup = async ({ fullName, username, password, confirmPassword, gender }) => {
         const success = handleInputError(fullName, username, password, confirmPassword, gender)
@@ -58,11 +61,15 @@ export const useSignup = () => {
             console.log(data);
 
             if(data.Error) {
-                toast.error(data.Error);
+                throw new Error(data.Error);
             } else {
                 toast.success("Signup successful");
                 window.location.href = "/login";
             }
+
+            localStorage.setItem("user", JSON.stringify(data));
+            setAuthUser(data);
+
         } catch (error) {
             toast.error(error.message);
         } finally {
